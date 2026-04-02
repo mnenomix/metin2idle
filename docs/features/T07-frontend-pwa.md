@@ -44,6 +44,11 @@ React-basierte Webapp mit shadcn/ui + Tailwind CSS. PWA-ready für spätere App-
 - **PWA-ready von Anfang an**
 - **Mobile-First / Responsive**
 
+## Lokale Entwicklung
+- **Docker Compose** für lokale Services (PostgreSQL + Redis)
+- Frontend und Backend laufen nativ (Hot-Reload)
+- Separates Docker Compose für Produktion (alle Services inkl. App + Reverse Proxy)
+
 ## Offene Punkte
 - [ ] Farbschema / Theme definieren (Metin2-inspiriert)
 - [ ] Game-spezifische Komponenten designen (HP-Balken, Inventar etc.)

@@ -1,0 +1,84 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: idle-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-idle}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-idle}
+      POSTGRES_DB: ${DB_NAME:-idle}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - idle-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: idle-redis
+    networks:
+      - idle-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: idle-backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-idle}:${DB_PASSWORD:-idle}@postgres:5432/${DB_NAME:-idle}
+      REDIS_URL: redis://redis:6379
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL}
+      PORT: 3001
+      NODE_ENV: production
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - idle-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    container_name: idle-frontend
+    depends_on:
+      - backend
+    networks:
+      - idle-network
+    restart: unless-stopped
+
+  traefik:
+    image: traefik:v3
+    container_name: idle-traefik
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - idle-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  letsencrypt:
+
+networks:
+  idle-network:
+    driver: bridge

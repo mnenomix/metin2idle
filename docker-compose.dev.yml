@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: idle-postgres-dev
+    environment:
+      POSTGRES_USER: idle
+      POSTGRES_PASSWORD: idle
+      POSTGRES_DB: idle
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: idle-redis-dev
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata_dev:

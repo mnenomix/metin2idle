@@ -38,6 +38,7 @@
 
 | # | Feature | Status | Dokument |
 |---|---------|--------|----------|
+| T0 | Entwicklungsumgebung & Infrastruktur | 🟢 | [detail](./features/T00-dev-environment.md) |
 | T1 | Auth-System | 🟢 | [detail](./features/T01-auth.md) |
 | T2 | Datenbank-Schema | 🟢 | [detail](./features/T02-database.md) |
 | T3 | WebSocket-Layer | 🟢 | [detail](./features/T03-websocket.md) |
